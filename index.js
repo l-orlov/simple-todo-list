@@ -77,19 +77,19 @@ fetchTask()
             const currentListItem = createTask(item.title)
 
             switch (item.status) {
-                case 'ToDo':
+                case 1:
                     console.log('ToDo');
                     taskList1.appendChild(currentListItem);
                     break;
-                case 'InProgress':
+                case 2:
                     console.log('InProgress');
                     taskList2.appendChild(currentListItem);
                     break;
-                case 'Done':
+                case 3:
                     console.log('Done');
                     taskList3.appendChild(currentListItem);
                     break;
-                case 'Deleted':
+                case 4:
                     console.log('Deleted');
                     break;
                 default:
