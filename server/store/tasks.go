@@ -9,6 +9,28 @@ import (
 
 // todo: add timeout for ctx
 
+func (s *Storage) CreateTask(ctx context.Context, record *model.Task) error {
+	// Создаем запрос вставки
+	queryBuilder := psql().
+		Insert(record.DbTable()).
+		SetMap(taskAttrs(record)).
+		Suffix("RETURNING id, created_at, updated_at")
+
+	// Получаем SQL-запрос и его аргументы
+	sqlQuery, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("queryBuilder.ToSql: %w", err)
+	}
+
+	// Выполняем запрос и получаем ID вставленной записи
+	err = s.db.QueryRowContext(ctx, sqlQuery, args...).Scan(&record.ID, &record.CreatedAt, &record.UpdatedAt)
+	if err != nil {
+		return fmt.Errorf("db.QueryRowContext and Scan: %w", err)
+	}
+
+	return nil
+}
+
 func (s *Storage) GetTasks(ctx context.Context) ([]*model.Task, error) {
 	queryBuilder := psql().
 		Select(asteriskTasks).
@@ -45,4 +67,11 @@ func (s *Storage) GetTasks(ctx context.Context) ([]*model.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func taskAttrs(record *model.Task) map[string]interface{} {
+	return map[string]interface{}{
+		"title":  record.Title,
+		"status": record.Status,
+	}
 }

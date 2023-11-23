@@ -2,24 +2,35 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
+	"github.com/l-orlov/simple-todo-list/server/controller"
 	"github.com/l-orlov/simple-todo-list/server/store"
+	"github.com/rs/cors"
 )
 
 /*
 todo:
 - сохранять данные в БД
+  - обновление таски по ID
 - сделать регистрацию и вход
 - таски для каждого пользователя свои
 - когда создаем новую таску или меняем статус текущей, то вызывать метод в API, чтобы записать обновленные данные
+- добавить swagger
+- добавить graceful shutdown
 */
 
+// @title Your API Title
+// @version 1.0
+// @description Your API description. You can use Markdown here.
+// @host localhost:8080
+// @BasePath /v1
 func main() {
 	ctx := context.Background()
+	_ = ctx
 
 	// Connect to DB
 	storage, err := store.New()
@@ -27,57 +38,29 @@ func main() {
 		log.Fatalf("store.New: %s", err)
 	}
 
-	initialTasks, err := storage.GetTasks(ctx)
+	// Init handler
+	routsController, err := controller.New(storage)
 	if err != nil {
-		log.Fatalf("storage.GetTasks: %s", err)
+		log.Fatalf("controller.New: %s", err)
 	}
 
-	// Обработчик запросов
-	http.HandleFunc("/json", func(w http.ResponseWriter, r *http.Request) {
-		// Преобразуем данные в JSON
-		jsonData, err := json.Marshal(initialTasks)
-		if err != nil {
-			http.Error(w, "error with json marshalling", http.StatusInternalServerError)
-			return
-		}
+	// Инициализация маршрутизатора Gorilla Mux
+	r := mux.NewRouter()
 
-		// Устанавливаем заголовок Content-Type
-		w.Header().Set("Content-Type", "application/json")
-		// Устанавливаем заголовок Access-Control-Allow-Origin для разрешения запросов с любых доменов
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+	// Регистрируем хэндлеры
+	r.HandleFunc("/tasks/create", routsController.CreateTask).Methods(http.MethodPost)
+	r.HandleFunc("/tasks/get", routsController.GetTasks).Methods(http.MethodGet)
 
-		// Устанавливаем статус 200
-		w.WriteHeader(http.StatusOK)
+	// Создаем экземпляр CORS с настройками по умолчанию
+	c := cors.Default()
 
-		// Отправляем JSON в ответе
-		_, _ = w.Write(jsonData)
-	})
-
-	http.HandleFunc("/create-task", func(w http.ResponseWriter, r *http.Request) {
-		// Преобразуем данные в JSON
-		jsonData, err := json.Marshal(initialTasks)
-		if err != nil {
-			http.Error(w, "error with json marshalling", http.StatusInternalServerError)
-			return
-		}
-
-		// Устанавливаем заголовок Content-Type
-		w.Header().Set("Content-Type", "application/json")
-		// Устанавливаем заголовок Access-Control-Allow-Origin для разрешения запросов с любых доменов
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
-		// Устанавливаем статус 200
-		w.WriteHeader(http.StatusOK)
-
-		// Отправляем JSON в ответе
-		_, _ = w.Write(jsonData)
-	})
-
-	// Слушаем порт 8080
+	// Запуск веб-сервера на порту 8080 с поддержкой CORS
 	port := 8080
 	fmt.Printf("Server is running on port %d...\n", port)
+	handler := cors.Default().Handler(r)
+	http.Handle("/", c.Handler(handler))
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
-		fmt.Println("Error starting the server:", err)
+		log.Fatal(err)
 	}
 }

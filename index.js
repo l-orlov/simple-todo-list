@@ -10,7 +10,7 @@ const taskList3 = document.getElementById('taskList3');
 */
 
 function fetchTask() {
-    return fetch('http://localhost:8080/json')
+    return fetch('http://localhost:8080/tasks/get')
         .then(response => {
             // Проверка на успешный ответ (код 200-299)
             if (!response.ok) {
