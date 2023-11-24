@@ -11,11 +11,27 @@ const taskList3 = document.getElementById('taskList3');
 
 const url = 'http://localhost:8080/tasks/';
 
-function createTaskElement(id, title, status) {
-    console.log(id, title, status)
+function updateTaskStatusByListItem(listItem, newStatus) {
+    if (listItem.dataset.taskStatus !== newStatus) {
+        listItem.dataset.taskStatus = newStatus
+        var task = {
+            id: listItem.dataset.taskId,
+            title: listItem.dataset.taskTitle,
+            status: +listItem.dataset.taskStatus, // Из строки делаем число
+        }
+        // Обновляем таску
+        updateTask(task)
+            .catch(error => {
+                // Обработка ошибок
+                console.error('error updating task:', error.message);
+            });
+    }
+}
+
+function createTaskElement(task) {
     const listItem = document.createElement('li');
     listItem.innerHTML = `
-        <span>${title}</span>
+        <span>${task.title}</span>
         <div>
         <button class="toTheBegining">В начало</button>
         <button class="inProcess">В процессе</button>
@@ -23,39 +39,42 @@ function createTaskElement(id, title, status) {
         <button class="deleteTask">Удалить</button>
         </div>
     `;
-    listItem.dataset.taskId = id
-    listItem.dataset.taskTitle = title
-    listItem.dataset.taskStatus = status
+    listItem.dataset.taskId = task.id
+    listItem.dataset.taskTitle = task.title
+    listItem.dataset.taskStatus = task.status
 
-
-    const processButton1 = listItem.querySelector('.inProcess');
-    processButton1.addEventListener('click', () => {
-
+    const processButton = listItem.querySelector('.inProcess');
+    processButton.addEventListener('click', () => {
         taskList2.appendChild(listItem);
+
+        updateTaskStatusByListItem(listItem, '2')
     });
 
-    const readyButton1 = listItem.querySelector('.ready');
-    readyButton1.addEventListener('click', () => {
+    const readyButton = listItem.querySelector('.ready');
+    readyButton.addEventListener('click', () => {
         taskList3.appendChild(listItem);
 
+        updateTaskStatusByListItem(listItem, '3')
     });
 
-    const beginButton1 = listItem.querySelector('.toTheBegining');
-    beginButton1.addEventListener('click', () => {
+    const beginButton = listItem.querySelector('.toTheBegining');
+    beginButton.addEventListener('click', () => {
         taskList1.appendChild(listItem);
 
+        updateTaskStatusByListItem(listItem, '1')
     });
 
-    const deleteButton1 = listItem.querySelector('.deleteTask');
-    deleteButton1.addEventListener('click', (event) => {
+    const deleteButton = listItem.querySelector('.deleteTask');
+    deleteButton.addEventListener('click', (event) => {
         const currentList = event.target.parentNode.parentNode.parentNode;
         if (currentList == taskList1) taskList1.removeChild(listItem);
         if (currentList == taskList2) taskList2.removeChild(listItem);
         if (currentList == taskList3) taskList3.removeChild(listItem);
+
+        updateTaskStatusByListItem(listItem, '4')
     });
 
-    console.log('status = ', status)
-    switch (status) {
+    switch (task.status) {
         case 1:
             taskList1.appendChild(listItem);
             break;
@@ -83,7 +102,7 @@ function fetchTasks() {
         })
         .catch(error => {
             // Обработка ошибок
-            console.error('There was a problem with the fetch operation:', error.message);
+            console.error('error fetching tasks:', error.message);
         });
 }
 
@@ -117,21 +136,46 @@ function createTask(title, status) {
         });
 }
 
-// Вызываем функцию и работаем с данными вне неё
-// fetchTasks()
-//     .then(data => {
-//         // Перебираем элементы массива
-//         for (let task of data) {
-//             // Добавляем таску на общую доску тасок
-//             createTaskElement(task.id, task.title, task.status)
-//         }
-//     })
-//     .catch(error => {
-//         // Обработка ошибок
-//         console.error('There was an error outside fetchData:', error.message);
-//     });
+function updateTask(task) {
+    // Опции запроса
+    var requestOptions = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(task)
+    };
+    // Отправляем POST-запрос на сервер
+    return fetch(url, requestOptions)
+        .then(response => {
+            // Проверка на успешный ответ (код 200-299)
+            if (!response.ok) {
+                throw new Error(`Network response was not ok, status: ${response.status}`);
+            }
+            // Преобразование ответа в JSON
+            return response.json();
+        })
+        .catch(error => {
+            // Обработка ошибок
+            console.error('There was a problem with the fetch operation:', error.message);
+        });
+}
 
-addTaskButton.addEventListener('click', async() => {
+// Получаем все таски и добавляем на доску тасок
+fetchTasks()
+    .then(data => {
+        // Перебираем элементы массива
+        for (let task of data) {
+            // Добавляем таску на доску тасок
+            createTaskElement(task)
+        }
+    })
+    .catch(error => {
+        // Обработка ошибок
+        console.error('There was an error outside fetchData:', error.message);
+    });
+
+addTaskButton.addEventListener('click', () => {
     const taskTitle = taskInput.value.trim();
 
     if (taskTitle === '') {
@@ -139,41 +183,15 @@ addTaskButton.addEventListener('click', async() => {
         return;
     }
 
-    try {
-        const data = await createTask(taskTitle, 1);
-
-        const task = {
-            id: data.id,
-            status: data.status,
-            title: data.title
-        };
-
-        console.log('task: ', task);
-
-        createTaskElement(task.id, task.title, task.status);
-
-        taskInput.value = '';
-    } catch (error) {
-        // Обработка ошибок
-        console.error('error creating task:', error.message);
-    }
-
-    // createTaskElement(task.id, task.title, task.status)
-    //
-    // var task = {}
-    // createTask(taskTitle, 1)
-    //     .then(data => {
-    //         task.id = data.id
-    //         task.status = data.status
-    //         task.title = data.title
-    //     })
-    //     .catch(error => {
-    //         // Обработка ошибок
-    //         console.error('There was an error outside fetchData:', error.message);
-    //     });
-    //
-    // console.log('task: ', task)
-
-
-    // taskInput.value = '';
+    createTask(taskTitle, 1)
+        .then(task => {
+            // Добавляем таску на общую доску тасок
+            createTaskElement(task);
+            // Очищаем поле ввода
+            taskInput.value = '';
+        })
+        .catch(error => {
+            // Обработка ошибок
+            console.error('error creating task:', error.message);
+        });
 });

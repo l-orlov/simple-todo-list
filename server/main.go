@@ -16,7 +16,6 @@ import (
 todo:
 - сделать регистрацию и вход
 - таски для каждого пользователя свои
-- когда создаем новую таску или меняем статус текущей, то вызывать метод в API, чтобы записать обновленные данные
 - добавить swagger
 - добавить graceful shutdown
 */
@@ -51,12 +50,23 @@ func main() {
 	r.HandleFunc("/tasks/", routsController.GetTasks).Methods(http.MethodGet)
 
 	// Создаем экземпляр CORS с настройками по умолчанию
-	c := cors.Default()
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodDelete,
+			http.MethodOptions,
+		},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
 
 	// Запуск веб-сервера на порту 8080 с поддержкой CORS
 	port := 8080
 	fmt.Printf("Server is running on port %d...\n", port)
-	handler := cors.Default().Handler(r)
+	handler := cors.AllowAll().Handler(r)
 	http.Handle("/", c.Handler(handler))
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {

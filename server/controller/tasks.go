@@ -32,6 +32,7 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(task); err != nil {
+		log.Printf("%s: decoder.Decode: %s", msgPrefix, err)
 		http.Error(w, "invalid json in body", http.StatusBadRequest)
 		return
 	}
@@ -68,6 +69,7 @@ func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(task); err != nil {
+		log.Printf("%s: decoder.Decode: %s", msgPrefix, err)
 		http.Error(w, "invalid json in body", http.StatusBadRequest)
 		return
 	}
