@@ -14,8 +14,6 @@ import (
 
 /*
 todo:
-- сохранять данные в БД
-  - обновление таски по ID
 - сделать регистрацию и вход
 - таски для каждого пользователя свои
 - когда создаем новую таску или меняем статус текущей, то вызывать метод в API, чтобы записать обновленные данные
@@ -48,8 +46,9 @@ func main() {
 	r := mux.NewRouter()
 
 	// Регистрируем хэндлеры
-	r.HandleFunc("/tasks/create", routsController.CreateTask).Methods(http.MethodPost)
-	r.HandleFunc("/tasks/get", routsController.GetTasks).Methods(http.MethodGet)
+	r.HandleFunc("/tasks/", routsController.CreateTask).Methods(http.MethodPost)
+	r.HandleFunc("/tasks/", routsController.UpdateTask).Methods(http.MethodPut)
+	r.HandleFunc("/tasks/", routsController.GetTasks).Methods(http.MethodGet)
 
 	// Создаем экземпляр CORS с настройками по умолчанию
 	c := cors.Default()

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/l-orlov/simple-todo-list/server/model"
 )
 
@@ -31,10 +32,35 @@ func (s *Storage) CreateTask(ctx context.Context, record *model.Task) error {
 	return nil
 }
 
+func (s *Storage) UpdateTaskByID(ctx context.Context, record *model.Task) error {
+	// Создаем запрос вставки
+	queryBuilder := psql().
+		Update(record.DbTable()).
+		SetMap(taskAttrsForUpdate(record)).
+		Where(sq.Eq{"id": record.ID}).
+		Suffix("RETURNING " + asteriskTasks)
+
+	// Получаем SQL-запрос и его аргументы
+	sqlQuery, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("queryBuilder.ToSql: %w", err)
+	}
+
+	// Выполняем запрос и получаем ID вставленной записи
+	err = s.db.QueryRowContext(ctx, sqlQuery, args...).Scan(&record.ID, &record.Title, &record.Status, &record.CreatedAt, &record.UpdatedAt)
+	if err != nil {
+		return fmt.Errorf("db.QueryRowContext and Scan: %w", err)
+	}
+
+	return nil
+}
+
 func (s *Storage) GetTasks(ctx context.Context) ([]*model.Task, error) {
 	queryBuilder := psql().
 		Select(asteriskTasks).
-		From(model.Task{}.DbTable())
+		From(model.Task{}.DbTable()).
+		// Получаем все таски кроме удаленных
+		Where(sq.NotEq{"status": model.TaskStatusDeleted}) // status <> 4
 
 	// Получаем SQL-запрос и его аргументы
 	sqlQuery, args, err := queryBuilder.ToSql()
@@ -67,6 +93,14 @@ func (s *Storage) GetTasks(ctx context.Context) ([]*model.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func taskAttrsForUpdate(record *model.Task) map[string]interface{} {
+	return map[string]interface{}{
+		"title":      record.Title,
+		"status":     record.Status,
+		"updated_at": "now()",
+	}
 }
 
 func taskAttrs(record *model.Task) map[string]interface{} {

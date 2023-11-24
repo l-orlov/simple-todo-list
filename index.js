@@ -9,26 +9,13 @@ const taskList3 = document.getElementById('taskList3');
 - подключить запросы на server, чтобы данные сохранялись в БД и подгружались из БД при обновление страницы
 */
 
-function fetchTask() {
-    return fetch('http://localhost:8080/tasks/get')
-        .then(response => {
-            // Проверка на успешный ответ (код 200-299)
-            if (!response.ok) {
-                throw new Error(`Network response was not ok, status: ${response.status}`);
-            }
-            // Преобразование ответа в JSON
-            return response.json();
-        })
-        .catch(error => {
-            // Обработка ошибок
-            console.error('There was a problem with the fetch operation:', error.message);
-        });
-}
+const url = 'http://localhost:8080/tasks/';
 
-function createTask(taskText) {
+function createTaskElement(id, title, status) {
+    console.log(id, title, status)
     const listItem = document.createElement('li');
     listItem.innerHTML = `
-        <span>${taskText}</span>
+        <span>${title}</span>
         <div>
         <button class="toTheBegining">В начало</button>
         <button class="inProcess">В процессе</button>
@@ -36,6 +23,10 @@ function createTask(taskText) {
         <button class="deleteTask">Удалить</button>
         </div>
     `;
+    listItem.dataset.taskId = id
+    listItem.dataset.taskTitle = title
+    listItem.dataset.taskStatus = status
+
 
     const processButton1 = listItem.querySelector('.inProcess');
     processButton1.addEventListener('click', () => {
@@ -63,55 +54,126 @@ function createTask(taskText) {
         if (currentList == taskList3) taskList3.removeChild(listItem);
     });
 
-    return listItem
+    console.log('status = ', status)
+    switch (status) {
+        case 1:
+            taskList1.appendChild(listItem);
+            break;
+        case 2:
+            taskList2.appendChild(listItem);
+            break;
+        case 3:
+            taskList3.appendChild(listItem);
+            break;
+        default:
+            console.log('invalid task status');
+    }
+}
+
+function fetchTasks() {
+    // Отправляем GET-запрос на сервер
+    return fetch(url)
+        .then(response => {
+            // Проверка на успешный ответ (код 200-299)
+            if (!response.ok) {
+                throw new Error(`Network response was not ok, status: ${response.status}`);
+            }
+            // Преобразование ответа в JSON
+            return response.json();
+        })
+        .catch(error => {
+            // Обработка ошибок
+            console.error('There was a problem with the fetch operation:', error.message);
+        });
+}
+
+function createTask(title, status) {
+    // Новая таска
+    var task = {
+        title: title,
+        status: status,
+    };
+    // Опции запроса
+    var requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(task)
+    };
+    // Отправляем POST-запрос на сервер
+    return fetch(url, requestOptions)
+        .then(response => {
+            // Проверка на успешный ответ (код 200-299)
+            if (!response.ok) {
+                throw new Error(`Network response was not ok, status: ${response.status}`);
+            }
+            // Преобразование ответа в JSON
+            return response.json();
+        })
+        .catch(error => {
+            // Обработка ошибок
+            console.error('There was a problem with the fetch operation:', error.message);
+        });
 }
 
 // Вызываем функцию и работаем с данными вне неё
-fetchTask()
-    .then(data => {
-        // Перебираем элементы массива
-        for (let item of data) {
-            console.log(item);
-            // Дополнительная обработка каждого элемента
+// fetchTasks()
+//     .then(data => {
+//         // Перебираем элементы массива
+//         for (let task of data) {
+//             // Добавляем таску на общую доску тасок
+//             createTaskElement(task.id, task.title, task.status)
+//         }
+//     })
+//     .catch(error => {
+//         // Обработка ошибок
+//         console.error('There was an error outside fetchData:', error.message);
+//     });
 
-            const currentListItem = createTask(item.title)
+addTaskButton.addEventListener('click', async() => {
+    const taskTitle = taskInput.value.trim();
 
-            switch (item.status) {
-                case 1:
-                    console.log('ToDo');
-                    taskList1.appendChild(currentListItem);
-                    break;
-                case 2:
-                    console.log('InProgress');
-                    taskList2.appendChild(currentListItem);
-                    break;
-                case 3:
-                    console.log('Done');
-                    taskList3.appendChild(currentListItem);
-                    break;
-                case 4:
-                    console.log('Deleted');
-                    break;
-                default:
-                    console.log('Invalid selection.');
-            }
-        }
-    })
-    .catch(error => {
-        // Обработка ошибок
-        console.error('There was an error outside fetchData:', error.message);
-    });
-
-addTaskButton.addEventListener('click', () => {
-    const taskText = taskInput.value.trim();
-
-    if (taskText === '') {
+    if (taskTitle === '') {
         alert('Пожалуйста, введите задачу.');
         return;
     }
 
-    const listItem = createTask(taskText)
-    taskList1.appendChild(listItem);
+    try {
+        const data = await createTask(taskTitle, 1);
 
-    taskInput.value = '';
+        const task = {
+            id: data.id,
+            status: data.status,
+            title: data.title
+        };
+
+        console.log('task: ', task);
+
+        createTaskElement(task.id, task.title, task.status);
+
+        taskInput.value = '';
+    } catch (error) {
+        // Обработка ошибок
+        console.error('error creating task:', error.message);
+    }
+
+    // createTaskElement(task.id, task.title, task.status)
+    //
+    // var task = {}
+    // createTask(taskTitle, 1)
+    //     .then(data => {
+    //         task.id = data.id
+    //         task.status = data.status
+    //         task.title = data.title
+    //     })
+    //     .catch(error => {
+    //         // Обработка ошибок
+    //         console.error('There was an error outside fetchData:', error.message);
+    //     });
+    //
+    // console.log('task: ', task)
+
+
+    // taskInput.value = '';
 });

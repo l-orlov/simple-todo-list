@@ -55,6 +55,42 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	msgPrefix := "handler.CreateTask"
+
+	// Проверяем метод запроса (должен быть PUT)
+	if r.Method != http.MethodPut {
+		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Декодируем JSON-данные из тела запроса
+	task := &model.Task{}
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(task); err != nil {
+		http.Error(w, "invalid json in body", http.StatusBadRequest)
+		return
+	}
+
+	// todo: add timeout
+	ctx := r.Context()
+
+	err := c.storage.UpdateTaskByID(ctx, task)
+	if err != nil {
+		log.Printf("%s: storage.UpdateTaskByID: %s", msgPrefix, err)
+		http.Error(w, "error updating task", http.StatusInternalServerError)
+		return
+	}
+
+	// Кодируем JSON и отправляем в ответе
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(&task); err != nil {
+		log.Printf("%s: json encode response: %s", msgPrefix, err)
+		http.Error(w, "error encoding json response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (c *Controller) GetTasks(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.GetTasks"
 
