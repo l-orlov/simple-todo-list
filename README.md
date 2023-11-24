@@ -4,9 +4,23 @@ To Do List with:
 - client in pure JS
 - server in Go
 
-### Start server
-Run this command: `go run server/main.go`
+### Init local db
+Install postgresql:
+```
+brew install postgresql
+```
+Set up database:
+```
+db-reset
+```
 
+### Start server
+Run command for starting Go server:
+```
+go run server/main.go
+```
+
+### Test API locally
 - Create task with curl:
 ```
 curl -X POST -H "Content-Type: application/json" -d '{"title": "Just do it", "status": 1}' http://localhost:8080/tasks/
