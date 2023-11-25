@@ -4,7 +4,7 @@ const taskList1 = document.getElementById('taskList1');
 const taskList2 = document.getElementById('taskList2');
 const taskList3 = document.getElementById('taskList3');
 
-const url = 'http://localhost:8080/tasks';
+const url = 'http://localhost:8080/api/v1/tasks';
 
 function updateTaskStatusByListItem(listItem, newStatus) {
     if (listItem.dataset.taskStatus !== newStatus) {

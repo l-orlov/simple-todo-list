@@ -34,7 +34,7 @@ go run server/cmd/main.go
 - Request:
 
 ```
-curl -X POST -d '{"email": "email@google.com", "password": "123"}' http://localhost:8080/register
+curl -X POST -d '{"email": "email@google.com", "password": "123"}' http://localhost:8080/api/v1/register
 ```
 
 ---
@@ -44,7 +44,7 @@ curl -X POST -d '{"email": "email@google.com", "password": "123"}' http://localh
 - Request:
 
 ```
-curl -X POST -d '{"email": "email@google.com", "password": "123"}' http://localhost:8080/login
+curl -X POST -d '{"email": "email@google.com", "password": "123"}' http://localhost:8080/api/v1/login
 ```
 
 - Response:
@@ -60,7 +60,7 @@ curl -X POST -d '{"email": "email@google.com", "password": "123"}' http://localh
 - Request:
 
 ```
-curl -X POST -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -d '{"title": "Just do it", "status": 1}' http://localhost:8080/tasks
+curl -X POST -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -d '{"title": "Just do it", "status": 1}' http://localhost:8080/api/v1/tasks
 ```
 
 - Response:
@@ -76,7 +76,7 @@ curl -X POST -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -d '{"title": "Just do
 - Request:
 
 ```
-curl -X GET -H "Authorization: Bearer YOUR_ACCESS_TOKEN" http://localhost:8080/tasks
+curl -X GET -H "Authorization: Bearer YOUR_ACCESS_TOKEN" http://localhost:8080/api/v1/tasks
 ```
 
 - Response:
@@ -92,7 +92,7 @@ curl -X GET -H "Authorization: Bearer YOUR_ACCESS_TOKEN" http://localhost:8080/t
 - Request:
 
 ```
-curl -X PUT -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -d '{"id":"c3db9081-9523-42e3-b6b0-efe65a4a8b89","title":"Just not do it","status":3}' http://localhost:8080/tasks
+curl -X PUT -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -d '{"id":"c3db9081-9523-42e3-b6b0-efe65a4a8b89","title":"Just not do it","status":3}' http://localhost:8080/api/v1/tasks
 ```
 
 - Response:

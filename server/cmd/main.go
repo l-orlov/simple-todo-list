@@ -22,16 +22,11 @@ func init() {
 	time.Local = time.UTC
 }
 
-/*
-todo:
-- добавить swagger
-*/
-
 // @title Your API Title
 // @version 1.0
 // @description Your API description. You can use Markdown here.
 // @host localhost:8080
-// @BasePath /v1
+// @BasePath /api/v1
 func main() {
 	ctx := context.Background()
 
@@ -48,7 +43,7 @@ func main() {
 	}
 
 	// Инициализация маршрутизатора Gorilla Mux
-	r := mux.NewRouter()
+	r := mux.NewRouter().PathPrefix("/api/v1").Subrouter()
 
 	// Регистрируем хэндлеры
 	r.HandleFunc("/register", routsController.RegisterUser).Methods(http.MethodPost)
