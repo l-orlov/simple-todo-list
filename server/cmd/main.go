@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/l-orlov/simple-todo-list/server/internal/controller"
+	"github.com/l-orlov/simple-todo-list/server/internal/server"
 	"github.com/l-orlov/simple-todo-list/server/internal/store"
 	"github.com/rs/cors"
 )
@@ -21,7 +25,6 @@ func init() {
 /*
 todo:
 - добавить swagger
-- добавить graceful shutdown
 */
 
 // @title Your API Title
@@ -31,7 +34,6 @@ todo:
 // @BasePath /v1
 func main() {
 	ctx := context.Background()
-	_ = ctx
 
 	// Connect to DB
 	storage, err := store.New()
@@ -70,12 +72,24 @@ func main() {
 	})
 
 	// Запуск веб-сервера на порту 8080 с поддержкой CORS
-	port := 8080
-	fmt.Printf("Server is running on port %d...\n", port)
-	handler := cors.AllowAll().Handler(r)
-	http.Handle("/", c.Handler(handler))
-	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
-	if err != nil {
-		log.Fatal(err)
+	port := "8080"
+	srv := server.New(port, c.Handler(r))
+	go func() {
+		if err = srv.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("error while running http server: %v", err)
+		}
+	}()
+
+	log.Printf("Server started on port %s", port)
+
+	// Graceful Shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	<-quit
+
+	log.Print("Server shutting down")
+
+	if err = srv.Shutdown(ctx); err != nil {
+		log.Printf("error shutting down: %v", err)
 	}
 }
