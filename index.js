@@ -4,12 +4,7 @@ const taskList1 = document.getElementById('taskList1');
 const taskList2 = document.getElementById('taskList2');
 const taskList3 = document.getElementById('taskList3');
 
-/*
-Задача:
-- подключить запросы на server, чтобы данные сохранялись в БД и подгружались из БД при обновление страницы
-*/
-
-const url = 'http://localhost:8080/tasks/';
+const url = 'http://localhost:8080/tasks';
 
 function updateTaskStatusByListItem(listItem, newStatus) {
     if (listItem.dataset.taskStatus !== newStatus) {
@@ -90,12 +85,26 @@ function createTaskElement(task) {
 }
 
 function fetchTasks() {
+    // Получаем токен из localStorage
+    const token = localStorage.getItem('token');
+    // Опции запроса
+    var requestOptions = {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    };
     // Отправляем GET-запрос на сервер
-    return fetch(url)
+    return fetch(url, requestOptions)
         .then(response => {
             // Проверка на успешный ответ (код 200-299)
             if (!response.ok) {
-                throw new Error(`Network response was not ok, status: ${response.status}`);
+                if (response.status === 401) {
+                    // Нужно заново выполнить login. Поэтому переходим на страницу для login
+                    window.location.href = 'auth.html';
+                } else {
+                    throw new Error(`Network response was not ok, status: ${response.status}`);
+                }
             }
             // Преобразование ответа в JSON
             return response.json();
@@ -112,11 +121,14 @@ function createTask(title, status) {
         title: title,
         status: status,
     };
+    // Получаем токен из localStorage
+    const token = localStorage.getItem('token');
     // Опции запроса
     var requestOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(task)
     };
@@ -125,7 +137,12 @@ function createTask(title, status) {
         .then(response => {
             // Проверка на успешный ответ (код 200-299)
             if (!response.ok) {
-                throw new Error(`Network response was not ok, status: ${response.status}`);
+                if (response.status === 401) {
+                    // Нужно заново выполнить login. Поэтому переходим на страницу для login
+                    window.location.href = 'auth.html';
+                } else {
+                    throw new Error(`Network response was not ok, status: ${response.status}`);
+                }
             }
             // Преобразование ответа в JSON
             return response.json();
@@ -137,11 +154,14 @@ function createTask(title, status) {
 }
 
 function updateTask(task) {
+    // Получаем токен из localStorage
+    const token = localStorage.getItem('token');
     // Опции запроса
     var requestOptions = {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(task)
     };
@@ -150,7 +170,12 @@ function updateTask(task) {
         .then(response => {
             // Проверка на успешный ответ (код 200-299)
             if (!response.ok) {
-                throw new Error(`Network response was not ok, status: ${response.status}`);
+                if (response.status === 401) {
+                    // Нужно заново выполнить login. Поэтому переходим на страницу для login
+                    window.location.href = 'auth.html';
+                } else {
+                    throw new Error(`Network response was not ok, status: ${response.status}`);
+                }
             }
             // Преобразование ответа в JSON
             return response.json();
@@ -164,6 +189,7 @@ function updateTask(task) {
 // Получаем все таски и добавляем на доску тасок
 fetchTasks()
     .then(data => {
+        console.log(data)
         // Перебираем элементы массива
         for (let task of data) {
             // Добавляем таску на доску тасок

@@ -23,20 +23,6 @@ SET row_security = off;
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 
---
--- Name: set_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.set_updated_at_column() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    NEW.updated_at = now() AT TIME ZONE 'utc';
-    RETURN NEW;
-END;
-$$;
-
-
 SET default_table_access_method = heap;
 
 --
@@ -77,6 +63,7 @@ ALTER SEQUENCE public.goose_db_version_id_seq OWNED BY public.goose_db_version.i
 
 CREATE TABLE public.tasks (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
     title text DEFAULT ''::text NOT NULL,
     status integer,
     created_at timestamp with time zone DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
@@ -90,8 +77,8 @@ CREATE TABLE public.tasks (
 
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    name text DEFAULT ''::text NOT NULL,
-    email text,
+    email text NOT NULL,
+    password text NOT NULL,
     created_at timestamp with time zone DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
     updated_at timestamp with time zone DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL
 );
@@ -129,17 +116,17 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: tasks update_tasks_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: tasks_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_column();
+CREATE INDEX tasks_user_id_idx ON public.tasks USING btree (user_id);
 
 
 --
--- Name: users update_users_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: users_email_uidx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_column();
+CREATE UNIQUE INDEX users_email_uidx ON public.users USING btree (email);
 
 
 --

@@ -5,17 +5,18 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/l-orlov/simple-todo-list/server/model"
+	"github.com/l-orlov/simple-todo-list/server/internal/model"
 )
 
 // Column names for models
 var (
-	asteriskTasks string
+	asteriskTasks, asteriskUsers string
 )
 
 func init() {
 	// Init column names for models
 	asteriskTasks = asterisk(model.Task{})
+	asteriskUsers = asterisk(model.User{})
 }
 
 type tableNameGetter interface {

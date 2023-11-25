@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Form</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+
+        .form-group p {
+            margin-top: 10px;
+            text-align: center;
+            color: #777;
+        }
+
+        /* Скрыть форму регистрации изначально */
+        #registerForm {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div id="loginForm">
+        <h2>Вход</h2>
+        <form class="form-group" onsubmit="login(event)">
+            <label for="loginEmail">Email:</label>
+            <input type="text" id="loginEmail" name="loginEmail" required>
+
+            <label for="loginPassword">Пароль:</label>
+            <input type="password" id="loginPassword" name="loginPassword" required>
+
+            <button type="submit">Войти</button>
+            <p>Нет аккаунта? <a href="#" id="showRegisterForm">Зарегистрироваться</a></p>
+        </form>
+        <div id="loginError" style="color: red;"></div> <!-- Элемент для вывода ошибок -->
+    </div>
+
+    <div id="registerForm">
+        <h2>Регистрация</h2>
+        <form class="form-group" onsubmit="register(event)">
+            <label for="regEmail">Email:</label>
+            <input type="text" id="regEmail" name="regEmail" required>
+
+            <label for="regPassword">Пароль:</label>
+            <input type="password" id="regPassword" name="regPassword" required>
+
+            <button type="submit">Зарегистрироваться</button>
+            <p>Уже есть аккаунт? <a href="#" id="showLoginForm">Войти</a></p>
+        </form>
+        <div id="registerError" style="color: red;"></div> <!-- Элемент для вывода ошибок -->
+    </div>
+</div>
+
+<script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegisterForm = document.getElementById('showRegisterForm');
+    const showLoginForm = document.getElementById('showLoginForm');
+
+    showRegisterForm.addEventListener('click', function (e) {
+        e.preventDefault();
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    });
+
+    showLoginForm.addEventListener('click', function (e) {
+        e.preventDefault();
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+    });
+
+    async function login(e) {
+        e.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorElement = document.getElementById('loginError'); // Элемент для вывода ошибок
+
+        try {
+            const response = await fetch('http://localhost:8080/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Пользователь не найден. Выполните регистрацию');
+                } else {
+                    throw new Error('Неверные данные для входа');
+                }
+            }
+
+            const data = await response.json();
+            console.log('Login successful:', data);
+
+            // Сохраняем токен в localStorage
+            localStorage.setItem('token', data.token);
+
+            // Дополнительная логика после успешного входа
+            errorElement.textContent = ''; // Очищаем сообщение об ошибке (если было)
+
+            // После успешного входа
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('Login error:', error.message);
+            errorElement.textContent = 'Ошибка входа: ' + error.message; // Выводим сообщение об ошибке
+        }
+    }
+
+    async function register(e) {
+        e.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const errorElement = document.getElementById('registerError'); // Элемент для вывода ошибок
+
+        try {
+            const response = await fetch('http://localhost:8080/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                if (response.status === 409) {
+                    throw new Error('Пользователь уже существует. Выполните вход');
+                } else {
+                    throw new Error('Что-то пошло не так');
+                }
+            }
+
+            const data = await response.json();
+            console.log('Registration successful:', data);
+            // Дополнительная логика после успешной регистрации
+            errorElement.textContent = ''; // Очищаем сообщение об ошибке (если было)
+        } catch (error) {
+            console.error('Registration error:', error.message);
+            errorElement.textContent = 'Ошибка регистрации: ' + error.message; // Выводим сообщение об ошибке
+        }
+    }
+
+</script>
+
+</body>
+</html>

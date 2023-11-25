@@ -5,17 +5,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/l-orlov/simple-todo-list/server/controller"
-	"github.com/l-orlov/simple-todo-list/server/store"
+	"github.com/l-orlov/simple-todo-list/server/internal/controller"
+	"github.com/l-orlov/simple-todo-list/server/internal/store"
 	"github.com/rs/cors"
 )
 
+func init() {
+	// Используем таймзону UTC по дефолту для временных меток
+	time.Local = time.UTC
+}
+
 /*
 todo:
-- сделать регистрацию и вход
-- таски для каждого пользователя свои
 - добавить swagger
 - добавить graceful shutdown
 */
@@ -45,9 +49,11 @@ func main() {
 	r := mux.NewRouter()
 
 	// Регистрируем хэндлеры
-	r.HandleFunc("/tasks/", routsController.CreateTask).Methods(http.MethodPost)
-	r.HandleFunc("/tasks/", routsController.UpdateTask).Methods(http.MethodPut)
-	r.HandleFunc("/tasks/", routsController.GetTasks).Methods(http.MethodGet)
+	r.HandleFunc("/register", routsController.RegisterUser).Methods(http.MethodPost)
+	r.HandleFunc("/login", routsController.LoginUser).Methods(http.MethodPost)
+	r.HandleFunc("/tasks", routsController.CreateTask).Methods(http.MethodPost)
+	r.HandleFunc("/tasks", routsController.UpdateTask).Methods(http.MethodPut)
+	r.HandleFunc("/tasks", routsController.GetTasks).Methods(http.MethodGet)
 
 	// Создаем экземпляр CORS с настройками по умолчанию
 	c := cors.New(cors.Options{

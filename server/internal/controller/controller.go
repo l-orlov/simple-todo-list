@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/l-orlov/simple-todo-list/server/store"
+	"github.com/l-orlov/simple-todo-list/server/internal/store"
 )
 
 type Controller struct {

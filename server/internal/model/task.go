@@ -8,6 +8,7 @@ import (
 
 type Task struct {
 	ID        uuid.UUID  `json:"id" db:"id"`
+	UserID    uuid.UUID  `json:"-" db:"user_id"`
 	Title     string     `json:"title" db:"title"`
 	Status    TaskStatus `json:"status" db:"status"`
 	CreatedAt time.Time  `json:"createdAt" db:"created_at"`
