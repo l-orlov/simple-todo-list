@@ -223,7 +223,7 @@ paths:
       - tasks
 securityDefinitions:
   Bearer:
-    description: Bearer {YOUR_TOKEN}
+    description: 'Токен для запросов в формате: Bearer {YOUR_TOKEN}'
     in: header
     name: Authorization
     type: apiKey

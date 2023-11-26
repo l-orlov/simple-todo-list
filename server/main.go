@@ -34,7 +34,7 @@ func init() {
 // @securityDefinitions.apiKey Bearer
 // @in header
 // @name Authorization
-// @description Bearer {YOUR_TOKEN}
+// @description Токен для запросов в формате: Bearer {YOUR_TOKEN}
 func main() {
 	ctx := context.Background()
 
