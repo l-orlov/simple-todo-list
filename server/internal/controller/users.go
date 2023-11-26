@@ -16,14 +16,16 @@ import (
 // defaultDBTimeout - дефолтный таймаут для запросов в БД
 const defaultDBTimeout = 5 * time.Second
 
-// RegisterUser регистрирует нового пользователя
-// @summary Регистрирует нового пользователя
-// @description Регистрирует нового пользователя с использованием данных из тела запроса.
-// @Accept  json
-// @Produce  json
-// @Param   username     body    string     true        "Username"
-// @Param   password     body    string     true        "Password"
-// @Success 200 {string} string  "ok"
+// RegisterUser регистрирует нового пользователя.
+// @Summary Регистрация нового пользователя
+// @Description Регистрирует нового пользователя с переданными данными в запросе
+// @Tags register
+// @Accept json
+// @Param task body model.UserLoginData true "Email и пароль для пользователя"
+// @Success 200 {string} string "Пользователь успешно зарегистрирован"
+// @Failure 400 {string} string "Невалидный JSON в теле запроса"
+// @Failure 409 {string} string "Пользователь уже существует"
+// @Failure 500 {string} string "Ошибка при создании пользователя"
 // @Router /register [post]
 func (c *Controller) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.RegisterUser"
@@ -73,14 +75,18 @@ func (c *Controller) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// При успехе ничего не возвращаем. В ответе будет статус 200 Ok
 }
 
-// LoginUser входит пользователя в систему
-// @summary Вход пользователя
-// @description Входит пользователя в систему с использованием данных из тела запроса.
+// LoginUser выполняет вход в систему для пользователя
+// @Summary Вход пользователя
+// @Description Выполняет вход в систему для пользователя с переданными данными в запросе
+// @Tags login
 // @Accept  json
 // @Produce  json
-// @Param   username     body    string     true        "Username"
-// @Param   password     body    string     true        "Password"
-// @Success 200 {string} string  "ok"
+// @Param task body model.UserLoginData true "Email и пароль для пользователя"
+// @Success 200 {string} string "Успешный вход в систему"
+// @Failure 400 {string} string "Невалидный JSON в теле запроса"
+// @Failure 401 {string} string "Неверный пароль"
+// @Failure 404 {string} string "Пользователь не найден"
+// @Failure 500 {string} string "Ошибка при создании пользователя"
 // @Router /login [post]
 func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"

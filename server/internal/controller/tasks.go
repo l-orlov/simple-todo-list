@@ -14,18 +14,18 @@ import (
 )
 
 // CreateTask создает новую таску
-// @summary Создает новую таску
-// @description Метод создания новой таски. Для успешного запроса нужен Bearer Token
-// @tags tasks
-// @accept json
-// @produce json
-// @param task body model.Task true "Данные новой таски"
-// @success 200 {object} map[string]interface{} "JSON-ответ"
-// @failure 400 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @router /tasks [post]
-// @security Bearer
+// @Summary Создание таски
+// @Description Создает новую таску. В запросе нужно передать Bearer Token
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param task body model.TaskToCreate true "Данные новой таски"
+// @Success 200 {string} string "Успешное создание"
+// @Failure 400 {string} string "Невалидный JSON в теле запроса"
+// @Failure 401 {string} string "Необходимо выполнить вход для пользователя"
+// @Failure 500 {string} string "Ошибка при создании пользователя"
+// @Router /tasks [post]
+// @Security Bearer
 func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"
 
@@ -44,16 +44,19 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Декодируем JSON-данные из тела запроса
-	task := &model.Task{}
+	taskData := &model.TaskToCreate{}
 	decoder := json.NewDecoder(r.Body)
-	if err = decoder.Decode(task); err != nil {
+	if err = decoder.Decode(taskData); err != nil {
 		log.Printf("%s: decoder.Decode: %s", msgPrefix, err)
 		http.Error(w, "invalid json in body", http.StatusBadRequest)
 		return
 	}
 
-	// Добавляем user_id для таски
-	task.UserID = userID
+	task := &model.Task{
+		UserID: userID, // Добавляем user_id для таски
+		Title:  taskData.Title,
+		Status: taskData.Status,
+	}
 
 	dbCtx, cancel := context.WithTimeout(r.Context(), defaultDBTimeout)
 	defer cancel()
@@ -75,18 +78,18 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateTask обновляет существующую таску
-// @summary Обновляет таску
-// @description Обновляет статус существующей таски с использованием данных из тела запроса.
-// @tags tasks
-// @accept json
-// @produce json
-// @param task body model.Task true "Данные существующей таски"
-// @success 200 {object} map[string]interface{} "JSON-ответ"
-// @failure 400 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @router /tasks [put]
-// @security Bearer
+// @Summary Обновление таски
+// @Description Обновляет существующую таску. В запросе нужно передать Bearer Token
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @param task body model.TaskToUpdate true "Данные существующей таски"
+// @Success 200 {string} string "Успешное создание"
+// @Failure 400 {string} string "Невалидный JSON в теле запроса"
+// @Failure 401 {string} string "Необходимо выполнить вход для пользователя"
+// @Failure 500 {string} string "Ошибка при создании пользователя"
+// @Router /tasks [put]
+// @Security Bearer
 func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"
 
@@ -105,16 +108,20 @@ func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Декодируем JSON-данные из тела запроса
-	task := &model.Task{}
+	taskData := &model.TaskToUpdate{}
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(task); err != nil {
+	if err = decoder.Decode(taskData); err != nil {
 		log.Printf("%s: decoder.Decode: %s", msgPrefix, err)
 		http.Error(w, "invalid json in body", http.StatusBadRequest)
 		return
 	}
 
-	// Добавляем user_id для таски
-	task.UserID = userID
+	task := &model.Task{
+		ID:     taskData.ID,
+		UserID: userID, // Добавляем user_id для таски
+		Title:  taskData.Title,
+		Status: taskData.Status,
+	}
 
 	dbCtx, cancel := context.WithTimeout(r.Context(), defaultDBTimeout)
 	defer cancel()
@@ -136,16 +143,15 @@ func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetTasks возвращает список тасок для пользователя
-// @summary Возвращает список тасок
-// @description Возвращает список тасок для пользователя с использованием данных из токена авторизации.
-// @tags tasks
-// @accept json
-// @produce json
-// @success 200 {array} model.Task "Список тасок"
-// @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @router /tasks [get]
-// @security Bearer
+// @Summary Вывод списка тасок
+// @Description Выводит список тасок. В запросе нужно передать Bearer Token
+// @Tags tasks
+// @Produce json
+// @Success 200 {array} model.Task "Список тасок"
+// @Failure 401 {string} string "Необходимо выполнить вход для пользователя"
+// @Failure 500 {string} string "Ошибка при создании пользователя"
+// @Router /tasks [get]
+// @Security Bearer
 func (c *Controller) GetTasks(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.GetTasks"
 

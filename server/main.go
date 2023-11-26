@@ -29,7 +29,7 @@ func init() {
 // @version 1.0
 // @description This is a sample server with To-Do List API.
 // @host localhost:8080
-// @BasePath /
+// @BasePath /api/v1
 //
 // @securityDefinitions.apiKey Bearer
 // @in header

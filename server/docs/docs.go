@@ -14,52 +14,58 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "securityDefinitions": {
-        "Bearer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        },
-        "ApiKey": {
-            "type": "apiKey",
-            "name": "ApiKey",
-            "in": "query"
-        }
-    },
     "paths": {
         "/login": {
             "post": {
-                "description": "Входит пользователя в систему с использованием данных из тела запроса.",
+                "description": "Выполняет вход в систему для пользователя с переданными данными в запросе",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "login"
+                ],
                 "summary": "Вход пользователя",
                 "parameters": [
                     {
-                        "description": "Username",
-                        "name": "username",
+                        "description": "Email и пароль для пользователя",
+                        "name": "task",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.UserLoginData"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Успешный вход в систему",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидный JSON в теле запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный пароль",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
                             "type": "string"
                         }
@@ -69,37 +75,46 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Регистрирует нового пользователя с использованием данных из тела запроса.",
+                "description": "Регистрирует нового пользователя с переданными данными в запросе",
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
+                "tags": [
+                    "register"
                 ],
-                "summary": "Регистрирует нового пользователя",
+                "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
-                        "description": "Username",
-                        "name": "username",
+                        "description": "Email и пароль для пользователя",
+                        "name": "task",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.UserLoginData"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Пользователь успешно зарегистрирован",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидный JSON в теле запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь уже существует",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
                             "type": "string"
                         }
@@ -114,17 +129,14 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Возвращает список тасок для пользователя с использованием данных из токена авторизации.",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Выводит список тасок. В запросе нужно передать Bearer Token",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Возвращает список тасок",
+                "summary": "Вывод списка тасок",
                 "responses": {
                     "200": {
                         "description": "Список тасок",
@@ -136,17 +148,15 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Необходимо выполнить вход для пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     }
                 }
@@ -157,7 +167,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Обновляет статус существующей таски с использованием данных из тела запроса.",
+                "description": "Обновляет существующую таску. В запросе нужно передать Bearer Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -167,7 +177,7 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Обновляет таску",
+                "summary": "Обновление таски",
                 "parameters": [
                     {
                         "description": "Данные существующей таски",
@@ -175,37 +185,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Task"
+                            "$ref": "#/definitions/model.TaskToUpdate"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "JSON-ответ",
+                        "description": "Успешное создание",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "400": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Невалидный JSON в теле запроса",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "401": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Необходимо выполнить вход для пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     }
                 }
@@ -216,7 +222,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Создает новую таску с использованием данных из тела запроса.",
+                "description": "Создает новую таску. В запросе нужно передать Bearer Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -226,7 +232,7 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Создает новую таску",
+                "summary": "Создание таски",
                 "parameters": [
                     {
                         "description": "Данные новой таски",
@@ -234,37 +240,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Task"
+                            "$ref": "#/definitions/model.TaskToCreate"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "JSON-ответ",
+                        "description": "Успешное создание",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "400": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Невалидный JSON в теле запроса",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "401": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Необходимо выполнить вход для пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     }
                 }
@@ -306,6 +308,50 @@ const docTemplate = `{
                 "TaskStatusDone",
                 "TaskStatusDeleted"
             ]
+        },
+        "model.TaskToCreate": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/model.TaskStatus"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TaskToUpdate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.TaskStatus"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserLoginData": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Bearer {YOUR_TOKEN}",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -316,8 +362,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Your API Title",
-	Description:      "Your API description. You can use Markdown here.",
+	Title:            "To-Do List API",
+	Description:      "This is a sample server with To-Do List API.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

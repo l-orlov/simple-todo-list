@@ -104,3 +104,7 @@ curl -X PUT -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -d '{"id":"c3db9081-952
 ### Use client in browser
 
 Open file `index.html` in browser
+
+### Use swagger docs for server
+
+Open url `http://localhost:8080/swagger/` in browser

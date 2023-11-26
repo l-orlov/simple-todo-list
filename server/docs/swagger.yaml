@@ -25,72 +25,110 @@ definitions:
     - TaskStatusInProgress
     - TaskStatusDone
     - TaskStatusDeleted
+  model.TaskToCreate:
+    properties:
+      status:
+        $ref: '#/definitions/model.TaskStatus'
+      title:
+        type: string
+    type: object
+  model.TaskToUpdate:
+    properties:
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/model.TaskStatus'
+      title:
+        type: string
+    type: object
+  model.UserLoginData:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
-  description: Your API description. You can use Markdown here.
-  title: Your API Title
+  description: This is a sample server with To-Do List API.
+  title: To-Do List API
   version: "1.0"
 paths:
   /login:
     post:
       consumes:
       - application/json
-      description: Входит пользователя в систему с использованием данных из тела запроса.
+      description: Выполняет вход в систему для пользователя с переданными данными
+        в запросе
       parameters:
-      - description: Username
+      - description: Email и пароль для пользователя
         in: body
-        name: username
+        name: task
         required: true
         schema:
-          type: string
-      - description: Password
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/model.UserLoginData'
       produces:
       - application/json
       responses:
         "200":
-          description: ok
+          description: Успешный вход в систему
+          schema:
+            type: string
+        "400":
+          description: Невалидный JSON в теле запроса
+          schema:
+            type: string
+        "401":
+          description: Неверный пароль
+          schema:
+            type: string
+        "404":
+          description: Пользователь не найден
+          schema:
+            type: string
+        "500":
+          description: Ошибка при создании пользователя
           schema:
             type: string
       summary: Вход пользователя
+      tags:
+      - login
   /register:
     post:
       consumes:
       - application/json
-      description: Регистрирует нового пользователя с использованием данных из тела
-        запроса.
+      description: Регистрирует нового пользователя с переданными данными в запросе
       parameters:
-      - description: Username
+      - description: Email и пароль для пользователя
         in: body
-        name: username
+        name: task
         required: true
         schema:
-          type: string
-      - description: Password
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
+          $ref: '#/definitions/model.UserLoginData'
       responses:
         "200":
-          description: ok
+          description: Пользователь успешно зарегистрирован
           schema:
             type: string
-      summary: Регистрирует нового пользователя
+        "400":
+          description: Невалидный JSON в теле запроса
+          schema:
+            type: string
+        "409":
+          description: Пользователь уже существует
+          schema:
+            type: string
+        "500":
+          description: Ошибка при создании пользователя
+          schema:
+            type: string
+      summary: Регистрация нового пользователя
+      tags:
+      - register
   /tasks:
     get:
-      consumes:
-      - application/json
-      description: Возвращает список тасок для пользователя с использованием данных
-        из токена авторизации.
+      description: Выводит список тасок. В запросе нужно передать Bearer Token
       produces:
       - application/json
       responses:
@@ -101,97 +139,92 @@ paths:
               $ref: '#/definitions/model.Task'
             type: array
         "401":
-          description: JSON-ответ с сообщением об ошибке
+          description: Необходимо выполнить вход для пользователя
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
-          description: JSON-ответ с сообщением об ошибке
+          description: Ошибка при создании пользователя
           schema:
-            additionalProperties: true
-            type: object
+            type: string
       security:
       - Bearer: []
-      summary: Возвращает список тасок
+      summary: Вывод списка тасок
       tags:
       - tasks
     post:
       consumes:
       - application/json
-      description: Создает новую таску с использованием данных из тела запроса.
+      description: Создает новую таску. В запросе нужно передать Bearer Token
       parameters:
       - description: Данные новой таски
         in: body
         name: task
         required: true
         schema:
-          $ref: '#/definitions/model.Task'
+          $ref: '#/definitions/model.TaskToCreate'
       produces:
       - application/json
       responses:
         "200":
-          description: JSON-ответ
+          description: Успешное создание
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "400":
-          description: JSON-ответ с сообщением об ошибке
+          description: Невалидный JSON в теле запроса
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "401":
-          description: JSON-ответ с сообщением об ошибке
+          description: Необходимо выполнить вход для пользователя
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
-          description: JSON-ответ с сообщением об ошибке
+          description: Ошибка при создании пользователя
           schema:
-            additionalProperties: true
-            type: object
+            type: string
       security:
       - Bearer: []
-      summary: Создает новую таску
+      summary: Создание таски
       tags:
       - tasks
     put:
       consumes:
       - application/json
-      description: Обновляет статус существующей таски с использованием данных из
-        тела запроса.
+      description: Обновляет существующую таску. В запросе нужно передать Bearer Token
       parameters:
       - description: Данные существующей таски
         in: body
         name: task
         required: true
         schema:
-          $ref: '#/definitions/model.Task'
+          $ref: '#/definitions/model.TaskToUpdate'
       produces:
       - application/json
       responses:
         "200":
-          description: JSON-ответ
+          description: Успешное создание
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "400":
-          description: JSON-ответ с сообщением об ошибке
+          description: Невалидный JSON в теле запроса
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "401":
-          description: JSON-ответ с сообщением об ошибке
+          description: Необходимо выполнить вход для пользователя
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
-          description: JSON-ответ с сообщением об ошибке
+          description: Ошибка при создании пользователя
           schema:
-            additionalProperties: true
-            type: object
+            type: string
       security:
       - Bearer: []
-      summary: Обновляет таску
+      summary: Обновление таски
       tags:
       - tasks
+securityDefinitions:
+  Bearer:
+    description: Bearer {YOUR_TOKEN}
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -6,6 +6,19 @@ import (
 	"github.com/google/uuid"
 )
 
+// TaskToCreate - данные для создания таски
+type TaskToCreate struct {
+	Title  string     `json:"title"`
+	Status TaskStatus `json:"status"`
+}
+
+// TaskToUpdate - данные для обновления таски
+type TaskToUpdate struct {
+	ID     uuid.UUID  `json:"id"`
+	Title  string     `json:"title"`
+	Status TaskStatus `json:"status"`
+}
+
 // Task - таска
 type Task struct {
 	ID        uuid.UUID  `json:"id" db:"id"`

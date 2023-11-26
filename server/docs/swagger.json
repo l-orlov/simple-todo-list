@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Your API description. You can use Markdown here.",
-        "title": "Your API Title",
+        "description": "This is a sample server with To-Do List API.",
+        "title": "To-Do List API",
         "contact": {},
         "version": "1.0"
     },
@@ -11,37 +11,55 @@
     "paths": {
         "/login": {
             "post": {
-                "description": "Входит пользователя в систему с использованием данных из тела запроса.",
+                "description": "Выполняет вход в систему для пользователя с переданными данными в запросе",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "login"
+                ],
                 "summary": "Вход пользователя",
                 "parameters": [
                     {
-                        "description": "Username",
-                        "name": "username",
+                        "description": "Email и пароль для пользователя",
+                        "name": "task",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.UserLoginData"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Успешный вход в систему",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидный JSON в теле запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный пароль",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
                             "type": "string"
                         }
@@ -51,37 +69,46 @@
         },
         "/register": {
             "post": {
-                "description": "Регистрирует нового пользователя с использованием данных из тела запроса.",
+                "description": "Регистрирует нового пользователя с переданными данными в запросе",
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
+                "tags": [
+                    "register"
                 ],
-                "summary": "Регистрирует нового пользователя",
+                "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
-                        "description": "Username",
-                        "name": "username",
+                        "description": "Email и пароль для пользователя",
+                        "name": "task",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.UserLoginData"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Пользователь успешно зарегистрирован",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидный JSON в теле запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь уже существует",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
                             "type": "string"
                         }
@@ -96,17 +123,14 @@
                         "Bearer": []
                     }
                 ],
-                "description": "Возвращает список тасок для пользователя с использованием данных из токена авторизации.",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Выводит список тасок. В запросе нужно передать Bearer Token",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Возвращает список тасок",
+                "summary": "Вывод списка тасок",
                 "responses": {
                     "200": {
                         "description": "Список тасок",
@@ -118,17 +142,15 @@
                         }
                     },
                     "401": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Необходимо выполнить вход для пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     }
                 }
@@ -139,7 +161,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "Обновляет статус существующей таски с использованием данных из тела запроса.",
+                "description": "Обновляет существующую таску. В запросе нужно передать Bearer Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -149,7 +171,7 @@
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Обновляет таску",
+                "summary": "Обновление таски",
                 "parameters": [
                     {
                         "description": "Данные существующей таски",
@@ -157,37 +179,33 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Task"
+                            "$ref": "#/definitions/model.TaskToUpdate"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "JSON-ответ",
+                        "description": "Успешное создание",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "400": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Невалидный JSON в теле запроса",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "401": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Необходимо выполнить вход для пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     }
                 }
@@ -198,7 +216,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "Создает новую таску с использованием данных из тела запроса.",
+                "description": "Создает новую таску. В запросе нужно передать Bearer Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -208,7 +226,7 @@
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Создает новую таску",
+                "summary": "Создание таски",
                 "parameters": [
                     {
                         "description": "Данные новой таски",
@@ -216,37 +234,33 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Task"
+                            "$ref": "#/definitions/model.TaskToCreate"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "JSON-ответ",
+                        "description": "Успешное создание",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "400": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Невалидный JSON в теле запроса",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "401": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Необходимо выполнить вход для пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "JSON-ответ с сообщением об ошибке",
+                        "description": "Ошибка при создании пользователя",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     }
                 }
@@ -288,6 +302,50 @@
                 "TaskStatusDone",
                 "TaskStatusDeleted"
             ]
+        },
+        "model.TaskToCreate": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/model.TaskStatus"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TaskToUpdate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.TaskStatus"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserLoginData": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Bearer {YOUR_TOKEN}",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
