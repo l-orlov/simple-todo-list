@@ -14,16 +14,17 @@ import (
 )
 
 // CreateTask создает новую таску
-// @summary Создает нового пользователя
-// @description Хэндлер принимает POST-запрос с данными новой таски, делает запись в БД и возвращает результат в формате JSON.
-// @tags users
+// @summary Создает новую таску
+// @description Создает новую таску с использованием данных из тела запроса.
+// @tags tasks
 // @accept json
 // @produce json
-// @param task body Task true "Данные новой таски"
+// @param task body model.Task true "Данные новой таски"
 // @success 200 {object} map[string]interface{} "JSON-ответ"
 // @failure 400 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
+// @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
-// @router /createUser [post]
+// @router /tasks [post]
 func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"
 
@@ -72,6 +73,18 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateTask обновляет существующую таску
+// @summary Обновляет таску
+// @description Обновляет статус существующей таски с использованием данных из тела запроса.
+// @tags tasks
+// @accept json
+// @produce json
+// @param task body model.Task true "Данные существующей таски"
+// @success 200 {object} map[string]interface{} "JSON-ответ"
+// @failure 400 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
+// @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
+// @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
+// @router /tasks [put]
 func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"
 
@@ -120,6 +133,16 @@ func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetTasks возвращает список тасок для пользователя
+// @summary Возвращает список тасок
+// @description Возвращает список тасок для пользователя с использованием данных из токена авторизации.
+// @tags tasks
+// @accept json
+// @produce json
+// @success 200 {array} model.Task "Список тасок"
+// @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
+// @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
+// @router /tasks [get]
 func (c *Controller) GetTasks(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.GetTasks"
 

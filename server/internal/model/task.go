@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Task - таска
 type Task struct {
 	ID        uuid.UUID  `json:"id" db:"id"`
 	UserID    uuid.UUID  `json:"-" db:"user_id"`
@@ -20,6 +21,7 @@ func (Task) DbTable() string {
 	return "tasks"
 }
 
+// TaskStatus - статус таски
 type TaskStatus int32
 
 const (
