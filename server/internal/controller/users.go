@@ -72,7 +72,13 @@ func (c *Controller) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// При успехе ничего не возвращаем. В ответе будет статус 200 Ok
+	// При успехе возвращаем пустую структуру
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(&struct{}{}); err != nil {
+		log.Printf("%s: json encode response: %s", msgPrefix, err)
+		http.Error(w, "error encoding json response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // LoginUser выполняет вход в систему для пользователя
