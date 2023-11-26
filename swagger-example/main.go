@@ -41,6 +41,11 @@ func main() {
 // @Description This endpoint provides a short welcome message
 // @Produce text/plain
 // @Success 200 {string} string "welcome"
+// @Failure 400 {string} string "bad request"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 403 {string} string "forbidden"
+// @Failure 404 {string} string "not found"
+// @Failure 500 {string} string "internal server error"
 // @Router / [get]
 // @Security Bearer
 func WelcomeHandler(w http.ResponseWriter, r *http.Request) {

@@ -15,7 +15,7 @@ import (
 
 // CreateTask создает новую таску
 // @summary Создает новую таску
-// @description Создает новую таску с использованием данных из тела запроса.
+// @description Метод создания новой таски. Для успешного запроса нужен Bearer Token
 // @tags tasks
 // @accept json
 // @produce json

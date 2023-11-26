@@ -24,13 +24,17 @@ func init() {
 	time.Local = time.UTC
 }
 
-// todo: add swagger
-
-// @title Your API Title
+// @title To-Do List API
+//
 // @version 1.0
-// @description Your API description. You can use Markdown here.
+// @description This is a sample server with To-Do List API.
 // @host localhost:8080
-// @BasePath /api/v1
+// @BasePath /
+//
+// @securityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
+// @description Bearer {YOUR_TOKEN}
 func main() {
 	ctx := context.Background()
 
