@@ -1,0 +1,197 @@
+basePath: /api/v1
+definitions:
+  model.Task:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/model.TaskStatus'
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.TaskStatus:
+    enum:
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - TaskStatusToDo
+    - TaskStatusInProgress
+    - TaskStatusDone
+    - TaskStatusDeleted
+host: localhost:8080
+info:
+  contact: {}
+  description: Your API description. You can use Markdown here.
+  title: Your API Title
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Входит пользователя в систему с использованием данных из тела запроса.
+      parameters:
+      - description: Username
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Вход пользователя
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя с использованием данных из тела
+        запроса.
+      parameters:
+      - description: Username
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Регистрирует нового пользователя
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список тасок для пользователя с использованием данных
+        из токена авторизации.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список тасок
+          schema:
+            items:
+              $ref: '#/definitions/model.Task'
+            type: array
+        "401":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Возвращает список тасок
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Создает новую таску с использованием данных из тела запроса.
+      parameters:
+      - description: Данные новой таски
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/model.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JSON-ответ
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Создает новую таску
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: Обновляет статус существующей таски с использованием данных из
+        тела запроса.
+      parameters:
+      - description: Данные существующей таски
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/model.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JSON-ответ
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: JSON-ответ с сообщением об ошибке
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Обновляет таску
+      tags:
+      - tasks
+swagger: "2.0"
