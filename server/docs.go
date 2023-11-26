@@ -11,6 +11,10 @@ import _ "github.com/l-orlov/simple-todo-list/server/docs" // docs is generated 
 // @description Your API description. You can use Markdown here.
 // @host localhost:8080
 // @BasePath /api/v1
+// @securityDefinitions.Bearer.TokenURL http://localhost:8080/login
+// @securityDefinitions.Bearer.Type oauth2
+// @securityDefinitions.Bearer.Flow password
+// @securityDefinitions.Bearer.Scopes read,write
 func main() {
 	// This function is only for the purpose of godoc and should be empty.
 }

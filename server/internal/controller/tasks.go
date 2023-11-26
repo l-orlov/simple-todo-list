@@ -25,6 +25,7 @@ import (
 // @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @router /tasks [post]
+// @security Bearer
 func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"
 
@@ -85,6 +86,7 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 // @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @router /tasks [put]
+// @security Bearer
 func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.CreateTask"
 
@@ -143,6 +145,7 @@ func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 // @failure 401 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @failure 500 {object} map[string]interface{} "JSON-ответ с сообщением об ошибке"
 // @router /tasks [get]
+// @security Bearer
 func (c *Controller) GetTasks(w http.ResponseWriter, r *http.Request) {
 	msgPrefix := "handler.GetTasks"
 
